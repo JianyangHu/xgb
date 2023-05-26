@@ -2,3 +2,4 @@ shap
 sklearn
 xgboost
 openai
+numpy==1.21.6
