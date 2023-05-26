@@ -133,24 +133,31 @@ if st.button('Start'):
         
         st.success("Done!")
         st.markdown("""---""")
+
+
+        st.write("Let GPT help you!!!(about 30 seconds)")
+        
+        with st.spinner('GPT is telling you why...'):
+            completion = openai.ChatCompletion.create(model="gpt-3.5-turbo", 
+                                                    messages=[{"role": "user", 
+                                                                
+                                                                "content": "下面是一个队伍一场足球比赛的各种技术数据,这个队伍的位置是{},他的对手是{}队,shot是{},offside是{},AirDuelWon是{},Corner是{},CrossAcc是{},Foul是{},Tackle是{},SprintD是{},GroundDuelWon是{},Cross是{},LSRD是{},TackleWon是{},HSRE是{},MSRD是{},FwdPass是{},但是我用机器学习预测这只队伍的胜率只有{},你可以从从这只队伍在本场比赛的指标的角度来分析这些指标是怎么影响最终胜率的吗,要结合我所给的具体数值?用英语回答,谢谢你!".format(x16,x17,x1,x2,x3,x4,x5,x6,x7,x8,x9,x10,x11,x12,x13,x14,x15,round(float(model_xgb.predict_proba(np.array(x).reshape(1,-1))[0][1]),2))}]
+                                                    )
+    
+            st.write(completion.choices[0].message.content)
+
+            st.success("Done!")
+            st.markdown("""---""")
+
+
     else:
         st.warning('Please select a value for each variable and click Start again', icon="⚠️")
 
-    st.write("Let GPT help you!!!(about 30 seconds)")
+    
 
 
     
-    with st.spinner('GPT is telling you why...'):
-        completion = openai.ChatCompletion.create(model="gpt-3.5-turbo", 
-                                                  messages=[{"role": "user", 
-                                                             
-                                                             "content": "下面是一个队伍一场足球比赛的各种技术数据,这个队伍的位置是{},他的对手是{}队,shot是{},offside是{},AirDuelWon是{},Corner是{},CrossAcc是{},Foul是{},Tackle是{},SprintD是{},GroundDuelWon是{},Cross是{},LSRD是{},TackleWon是{},HSRE是{},MSRD是{},FwdPass是{},但是我用机器学习预测这只队伍的胜率只有{},你可以从从这只队伍在本场比赛的指标的角度来分析这些指标是怎么影响最终胜率的吗,要结合我所给的具体数值?用英语回答,谢谢你!".format(x16,x17,x1,x2,x3,x4,x5,x6,x7,x8,x9,x10,x11,x12,x13,x14,x15,round(float(model_xgb.predict_proba(np.array(x).reshape(1,-1))[0][1]),2))}]
-                                                  )
- 
-    st.write(completion.choices[0].message.content)
 
-    st.success("Done!")
-    st.markdown("""---""")
 
 
 
