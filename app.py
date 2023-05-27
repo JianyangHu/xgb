@@ -8,16 +8,66 @@ import pandas as pd
 import streamlit.components.v1 as components
 import time
 import openai
-
+import os
 # openai.log = "debug"
 openai.api_key = "sk-4PXP8GvDe7XyZm696bA8TCzpv5ZhKXTHFdVPQKe8RUKA5j26"
 openai.api_base = "https://api.chatanywhere.com.cn/v1"
+
+class BaseVisualizer:
+    pass 
+
+
+def save_html(out_file, plot, full_html=True):
+    """ Save html plots to an output file.
+    
+    Parameters
+    ----------
+    out_file : str or file
+        Location or file to be written to
+    plot : BaseVisualizer
+        Visualizer returned by shap.force_plot()
+    full_html : boolean (default: True)
+        If True, writes a complete HTML document starting 
+        with an <html> tag. If False, only script and div
+        tags are included.
+    """
+
+
+
+    # assert isinstance(plot, BaseVisualizer), "save_html requires a Visualizer returned by shap.force_plot()."
+    internal_open = False
+    if type(out_file) == str:
+        out_file = open(out_file, "w", encoding="utf-8")
+        internal_open = True
+    
+    if full_html:
+        out_file.write("<html><head><meta http-equiv='content-type' content='text/html'; charset='utf-8'>")
+    
+    out_file.write("<script>\n")
+
+    # dump the js cod
+    with open("bundle.js", "r", encoding="utf-8") as f:
+        bundle_data = f.read()
+    out_file.write(bundle_data)
+    out_file.write("</script>")
+    
+    if full_html:
+        out_file.write("</head><body>\n")
+
+    out_file.write(plot.html())
+    
+    if full_html:
+        out_file.write("</body></html>\n")
+
+    if internal_open:
+        out_file.close()
+
 
 
 
 st.set_page_config(
    page_title="XGBoost prediction & interpretability",
-   page_icon="🧊",
+   page_icon="⚽️",
    layout="wide",
    initial_sidebar_state="expanded",
 )
@@ -32,7 +82,7 @@ model_xgb = pickle.load(open("best model.dat", "rb"))
 with st.sidebar:
     st.markdown("<h2 style='text-align: center; color: black;font-size:30px'>Select the value of the variables </h2>", unsafe_allow_html=True)
     st.markdown("""---""")
-    st.markdown("<h2 style='text-align: center; color: black;font-size:20px'>Continuous variable </h2>", unsafe_allow_html=True)
+    st.markdown("<h2 style='text-align: center; color: black;font-size:20px'>Continuous variables </h2>", unsafe_allow_html=True)
     st.markdown("""---""")
     x1 = st.slider('Shot', 0, 40, 0)
     x2 = st.slider('Offside', 0, 15, 0)
@@ -42,7 +92,7 @@ with st.sidebar:
     x6 = st.slider('Foul', 0, 40, 0)
     x7 = st.slider('Tackle', 0, 100, 0)
     x8 = st.slider('SprintD', 0, 4000, 0)
-    x9 = st.slider('GroundDuelWon', 0, 20, 0)
+    x9 = st.slider('GroundDuelWon', 0, 100, 0)
     x10= st.slider('Cross', 0, 100, 0)
     x11 = st.slider('LSRD', 70000, 99999, 0)
     x12 = st.slider('TackleWon', 0, 100, 0)
@@ -51,7 +101,7 @@ with st.sidebar:
     x15 = st.slider('FwdPass', 0, 600, 0)
     #离散
     st.markdown("""---""")
-    st.markdown("<h2 style='text-align: center; color: black;font-size:20px'>Discrete variable </h2>", unsafe_allow_html=True)
+    st.markdown("<h2 style='text-align: center; color: black;font-size:20px'>Discrete variables </h2>", unsafe_allow_html=True)
     st.markdown("""---""")
     
     x16 = st.radio(
@@ -71,7 +121,7 @@ x=[x16_,x1,x2,x3,x4,x5,x6,x7,x8,x9,x10,x17_,x11,x12,x13,x14,x15]
 x=np.array(x).astype(float)
 
 st.markdown("""---""")
-with st.expander("Click here for instructions"):
+with st.expander("Variable introduction"):
     st.write('''
 
 1.Shot: The number of shots taken by the team can indicate their attacking ability. A higher number of shots may increase the chances of scoring and winning the game.
@@ -117,7 +167,7 @@ if st.button('Start'):
         shap_values=explainer.shap_values(x)
 
         xx=shap.force_plot(explainer.expected_value, shap_values[0,:], x.iloc[0,:],link='logit')
-        shap.save_html('shap.html', xx)
+        save_html('shap.html', xx)
 
         with open("shap.html","r") as f:
             html=f.read()
@@ -127,15 +177,17 @@ if st.button('Start'):
 
         
         st.markdown("""---""")
+        st.header("Prediction result:")
         st.write(f"The probability of winning is: {round(float(model_xgb.predict_proba(np.array(x).reshape(1,-1))[0][1]),2)}")
         st.markdown("""---""")
+        st.header("SHAP local interpretation:")
         components.html(html)
         
         st.success("Done!")
         st.markdown("""---""")
 
 
-        st.write("Let GPT help you!!!(about 30 seconds)")
+        st.header("Let GPT help you!!!(about 30 seconds)")
         
         with st.spinner('GPT is telling you why...'):
             completion = openai.ChatCompletion.create(model="gpt-3.5-turbo", 
