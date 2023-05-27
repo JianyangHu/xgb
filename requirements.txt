@@ -2,8 +2,9 @@ shap
 sklearn
 xgboost
 openai
-explainerdashboard
+
 numpy==1.21.6
 matplotlib
 ipython
 plotly
+explainerdashboard
