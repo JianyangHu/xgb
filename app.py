@@ -158,7 +158,7 @@ with st.expander("Variable introduction"):
 15.FwdPass: The number of forward passes made by the team can indicate their attacking intent and willingness to take risks. This may increase their chances of creating scoring opportunities and winning the game.
     ''')
 
-tab1, tab2, tab3,tab4 = st.tabs(["Prediction result","SHAP local interpretation", "Partial dependence plot", "GPT helps you "])
+tab2, tab4 = st.tabs(["SHAP local interpretation",  "GPT helps you "])
 
 f=["Location","Shot","Offside","AirDuelWon","GroundDuelWon","Corner","CrossAcc","Foul","Tackle","SprintD","Cross","OppRank","LSRD","TackleWon","HSRE","MSRD","FwdPass"]
 x=pd.DataFrame(x.reshape(1,-1),columns=f)
@@ -190,50 +190,51 @@ with tab2:
 
 
 
-with tab1:
-    button1=st.button('Start', key="1")
-    if button1:
-        if x11!=0:
-            st.write(f"The probability of winning is: {round(float(model_xgb.predict_proba(np.array(x).reshape(1,-1))[0][1]),2)}")
+# with tab1:
+#     button1=st.button('Start', key="1")
+#     if button1:
+#         if x11!=0:
+#             st.write(f"The probability of winning is: {round(float(model_xgb.predict_proba(np.array(x).reshape(1,-1))[0][1]),2)}")
 
-            value=[round(float(model_xgb.predict_proba(np.array(x).reshape(1,-1))[0][1]),2),1-round(float(model_xgb.predict_proba(np.array(x).reshape(1,-1))[0][1]),2)]
-            labels = ['Win', 'Loss']
-            fig = px.pie(values=value, names=labels, width=400, height=400, hover_name=labels, title='', color_discrete_sequence=px.colors.sequential.Sunset)
-            st.plotly_chart(fig, use_container_width=True)
-            st.success("Done!")
-        else:
-            st.warning('Please select a value for each variable and click Start again', icon="⚠️")
+#             value=[round(float(model_xgb.predict_proba(np.array(x).reshape(1,-1))[0][1]),2),1-round(float(model_xgb.predict_proba(np.array(x).reshape(1,-1))[0][1]),2)]
+#             labels = ['Win', 'Loss']
+#             fig = px.pie(values=value, names=labels, width=400, height=400, hover_name=labels, title='', color_discrete_sequence=px.colors.sequential.Sunset)
+#             st.plotly_chart(fig, use_container_width=True)
+#             st.success("Done!")
+#         else:
+#             st.warning('Please select a value for each variable and click Start again', icon="⚠️")
         
 
 
-with tab3:
-    button3=st.button('Start', key="3")
-    if button3:
-        if x11!=0:
+# with tab3:
+    # button3=st.button('Start', key="3")
+    # feature_name=["Location","Shot","Offside","AirDuelWon","GroundDuelWon","Corner","CrossAcc","Foul","Tackle","SprintD","Cross","OppRank","LSRD","TackleWon","HSRE","MSRD","FwdPass"]
+
+    # option = st.selectbox(
+    # 'Please select a variable',feature_name)
+
+    # if button3:
+    #     if x11!=0:
 
 
 
-            datasets=pd.read_csv("datasets.csv")
+    #         datasets=pd.read_csv("datasets.csv")
 
-            x_pdp=pd.concat([x,datasets],axis=0)
-
-            feature_name=["Location","Shot","Offside","AirDuelWon","GroundDuelWon","Corner","CrossAcc","Foul","Tackle","SprintD","Cross","OppRank","LSRD","TackleWon","HSRE","MSRD","FwdPass"]
-
-            option = st.selectbox(
-            'Please select a variable',feature_name)
-
-            explainer = ClassifierExplainer(model_xgb, x_pdp)
-            pdp=explainer.plot_pdp(col=option,index=0)
-            offline.plot(pdp, filename='pdp.html', auto_open=False)
-
-            with open("pdp.html","r") as h_p:
-                html_pdp=h_p.read()
-
-            components.html(html_pdp,height=500)
+    #         x_pdp=pd.concat([x,datasets],axis=0)
 
 
-        else:
-            st.warning('Please select a value for each variable and click Start again', icon="⚠️")
+    #         explainer = ClassifierExplainer(model_xgb, x_pdp)
+    #         pdp=explainer.plot_pdp(col=option,index=0)
+    #         offline.plot(pdp, filename='pdp.html', auto_open=False)
+
+    #         with open("pdp.html","r") as h_p:
+    #             html_pdp=h_p.read()
+
+    #         components.html(html_pdp,height=500)
+
+
+    #     else:
+    #         st.warning('Please select a value for each variable and click Start again', icon="⚠️")
         
 
 with tab4:
